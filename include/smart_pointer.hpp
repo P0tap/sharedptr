@@ -1,28 +1,34 @@
-// Copyright 2020 Your Name <your_email>
+// Copyright 2020 P0tap <nikita.potapov.1999@bk.ru>
 #include "atomic"
-#ifndef INCLUDE_HEADER_HPP_
-#define INCLUDE_HEADER_HPP_
-template <typename T>
+
+#ifndef INCLUDE_SMART_POINTER_HPP_
+#define INCLUDE_SMART_POINTER_HPP_
+
+template<typename T>
 class SharedPtr {
 private:
-    T* pointerToObject;
-    std::atomic_uint* counter;
+    T *pointerToObject;
+    std::atomic_uint *counter;
 
 public:
-    SharedPtr() : pointerToObject{nullptr}, counter(nullptr){};
-    explicit SharedPtr(T* ptr)
+    SharedPtr() : pointerToObject{nullptr}, counter(nullptr) {}
+
+    explicit SharedPtr(T *ptr)
             : pointerToObject{ptr}, counter(new std::atomic_uint) {
         *counter = 1; //
-    };
-    SharedPtr(const SharedPtr& r)
+    }
+
+    SharedPtr(const SharedPtr &r)
             : pointerToObject(r.pointerToObject), counter(r.counter) {
         ++(*counter);
-    };
-    SharedPtr(SharedPtr&& r)
+    }
+
+    SharedPtr(SharedPtr &&r)
             : pointerToObject(std::move(r.pointerToObject)),
               counter(std::move(r.counter)) {
         ++(*counter);
-    };
+    }
+
     ~SharedPtr() {
         if (*counter == 1) {
             delete counter;
@@ -31,8 +37,9 @@ public:
         } else {
             --(*counter);
         }
-    };
-    auto operator=(const SharedPtr& r) -> SharedPtr& {
+    }
+
+    auto operator=(const SharedPtr &r) -> SharedPtr & {
         this->reset();
         this->pointerToObject = r.pointerToObject;
         this->counter = r.counter;
@@ -41,7 +48,8 @@ public:
         }
         return *this;
     };
-    auto operator=(SharedPtr&& r) -> SharedPtr& {
+
+    auto operator=(SharedPtr &&r) -> SharedPtr & {
         this->reset();
         this->pointerToObject = r.pointerToObject;
         this->counter = r.counter;
@@ -51,12 +59,14 @@ public:
         return *this;
     };
 
-    operator bool() const { return pointerToObject; };
+    operator bool() const { return pointerToObject; }
 
-    auto operator*() const -> T& { return *pointerToObject; };
-    auto operator->() const -> T* { return pointerToObject; };
+    auto operator*() const -> T & { return *pointerToObject; };
 
-    auto get() -> T* { return pointerToObject; };
+    auto operator->() const -> T * { return pointerToObject; };
+
+    auto get() -> T * { return pointerToObject; };
+
     void reset() {
         if (counter != nullptr) {
             if (*counter != 1) {
@@ -68,16 +78,19 @@ public:
             pointerToObject = nullptr;
             counter = nullptr;
         }
-    };
-    void reset(T* ptr) {
+    }
+
+    void reset(T *ptr) {
         if (counter != nullptr) {
             --(*counter);
-        }
-        else {counter = new std::atomic_uint;
+        } else {
+            counter = new std::atomic_uint;
             *counter = 1;
-            pointerToObject = ptr;}
-    };
-    void swap(SharedPtr& r) {
+            pointerToObject = ptr;
+        }
+    }
+
+    void swap(SharedPtr &r) {
         SharedPtr<T> temp(r);
         r = *this;
         *this = temp;
@@ -85,4 +98,5 @@ public:
 
     auto use_count() const -> std::size_t { return *counter; };
 };
-#endif  // INCLUDE_HEADER_HPP_
+
+#endif  // INCLUDE_SMART_POINTER_HPP_
