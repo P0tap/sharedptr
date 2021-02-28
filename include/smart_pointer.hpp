@@ -1,6 +1,6 @@
 // Copyright 2020 P0tap <nikita.potapov.1999@bk.ru>
 #include "atomic"
-
+#include "utility"
 #ifndef INCLUDE_SMART_POINTER_HPP_
 #define INCLUDE_SMART_POINTER_HPP_
 
@@ -94,7 +94,7 @@ public:
         SharedPtr<T> temp(r);
         r = *this;
         *this = temp;
-    };
+    }
 
     auto use_count() const -> std::size_t { return *counter; };
 };
